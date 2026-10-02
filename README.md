@@ -15,6 +15,7 @@ The rules are adapted from [Tomas Vykruta's AGENTS.md thread](https://x.com/tvyk
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | The rules. Drop it in your repo as `AGENTS.md` or `CLAUDE.md` |
 | [`prompts/review.md`](prompts/review.md) | The prompt that measures your code against the rules, with numbers |
+| [`skills/slop-score/`](skills/slop-score/) | A slop score, 0 (clean) to 100 (slop): a script that counts, and an agent skill that reports every broken rule. JavaScript/TypeScript, Go, Python |
 | [`gates/`](gates/) | Example gates for a Node/Express service: boot check, import check, handler-shape test, strict schemas, and the script that runs them all |
 
 ## How to use it
@@ -27,6 +28,22 @@ The rules are adapted from [Tomas Vykruta's AGENTS.md thread](https://x.com/tvyk
    was safe; a gate will show you.
 4. **Refactor first, then change.** Small moves, verbatim, by script, each one behind green gates.
 5. **Measure again.**
+
+## The slop score
+
+```bash
+python3 skills/slop-score/measure.py /path/to/your/repo
+```
+
+Python 3, no dependencies. It prints one number and, for each rule, the count and the worst offenders as
+`file:line`. The number comes only from what the script counts, so the same tree always scores the same and a
+"before" can be compared with an "after". There is no ignore list. The counts are heuristics: read the offenders.
+
+As an agent skill (Claude Code): copy `skills/slop-score/` to `~/.claude/skills/slop-score/` and ask for a slop
+score. The agent runs the script, opens the worst offenders to confirm them, and adds what cannot be counted
+(domains with two owners, error paths that pass) as findings that do not change the number.
+
+The service in the table below scores **71** at the commit before the refactor and **47** after.
 
 ## What it did for one repo
 
